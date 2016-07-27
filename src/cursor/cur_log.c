@@ -246,6 +246,9 @@ __curlog_next(WT_CURSOR *cursor)
 	}
 	WT_ASSERT(session, cl->logrec->data != NULL);
 	WT_ERR(__curlog_kv(session, cursor));
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __curlog_next id: %d tid: %s\n", session->id, tid);
 	WT_STAT_FAST_CONN_INCR(session, cursor_next);
 	WT_STAT_FAST_DATA_INCR(session, cursor_next);
 

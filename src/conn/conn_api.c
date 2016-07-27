@@ -7,6 +7,8 @@
  */
 
 #include "wt_internal.h"
+//yunduz
+#include "rlu.h"
 
 static int __conn_statistics_config(WT_SESSION_IMPL *, const char *[]);
 
@@ -1761,6 +1763,12 @@ int
 wiredtiger_open(const char *home, WT_EVENT_HANDLER *event_handler,
     const char *config, WT_CONNECTION **wt_connp)
 {
+	//yunduz
+	RLU_INIT(RLU_TYPE_FINE_GRAINED, 1);
+
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wiredtiger_open tid: %s\n", tid);
 	static const WT_CONNECTION stdc = {
 		__conn_async_flush,
 		__conn_async_new_op,

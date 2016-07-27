@@ -266,6 +266,7 @@ __wt_conn_cache_pool_open(WT_SESSION_IMPL *session)
 	 */
 	F_SET_ATOMIC(cp, WT_CACHE_POOL_ACTIVE);
 	F_SET(cache, WT_CACHE_POOL_RUN);
+	printf("--- __wt_conn_cache_pool_open\n");
 	WT_RET(__wt_thread_create(session, &cache->cp_tid,
 	    __wt_cache_pool_server, cache->cp_session));
 

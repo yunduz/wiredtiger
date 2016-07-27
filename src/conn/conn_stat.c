@@ -135,6 +135,7 @@ err:	__stat_sources_free(session, &sources);
 static int
 __statlog_dump(WT_SESSION_IMPL *session, const char *name, int conn_stats)
 {
+	printf("--- statlog_dump\n");
 	WT_CONNECTION_IMPL *conn;
 	WT_CURSOR *cursor;
 	WT_DECL_ITEM(tmp);
@@ -453,6 +454,7 @@ __statlog_start(WT_CONNECTION_IMPL *conn)
 	 * have more than one thread, I just didn't feel like writing the code
 	 * to figure out the scheduling.
 	 */
+	printf("--- __statlog_start\n");
 	WT_RET(__wt_thread_create(
 	    session, &conn->stat_tid, __statlog_server, session));
 	conn->stat_tid_set = 1;

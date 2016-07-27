@@ -15,6 +15,9 @@
 int
 __wt_connection_init(WT_CONNECTION_IMPL *conn)
 {
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_connection_init tid: %s\n", tid);
 	WT_SESSION_IMPL *session;
 	u_int i;
 
@@ -104,6 +107,7 @@ __wt_connection_init(WT_CONNECTION_IMPL *conn)
 int
 __wt_connection_destroy(WT_CONNECTION_IMPL *conn)
 {
+	printf("--- __wt_connection_destroy\n");
 	WT_DECL_RET;
 	WT_SESSION_IMPL *session;
 	u_int i;

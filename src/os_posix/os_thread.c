@@ -16,6 +16,9 @@ int
 __wt_thread_create(WT_SESSION_IMPL *session,
     wt_thread_t *tidret, WT_THREAD_CALLBACK(*func)(void *), void *arg)
 {
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_thread_create id: %d tid: %s\n", session->id, tid);
 	WT_DECL_RET;
 
 	/* Spawn a new thread of control. */
@@ -32,6 +35,10 @@ __wt_thread_create(WT_SESSION_IMPL *session,
 int
 __wt_thread_join(WT_SESSION_IMPL *session, wt_thread_t tid)
 {
+	char mtid[128];
+	__wt_thread_id(mtid, sizeof(mtid));
+	printf("--- __wt_thread_join id: %d tid: %s\n", session->id, mtid);
+
 	WT_DECL_RET;
 
 	WT_SYSCALL_RETRY(pthread_join(tid, NULL), ret);

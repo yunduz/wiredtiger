@@ -146,6 +146,7 @@ __ckpt_server_start(WT_CONNECTION_IMPL *conn)
 	/*
 	 * Start the thread.
 	 */
+	printf("--- __ckpt_server_start\n");
 	WT_RET(__wt_thread_create(
 	    session, &conn->ckpt_tid, __ckpt_server, session));
 	conn->ckpt_tid_set = 1;

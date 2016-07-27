@@ -5,6 +5,9 @@
 void
 __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 {
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_stat_init_dsrc_stats id: %s\n", tid);
 	/* Clear, so can also be called for reinitialization. */
 	memset(stats, 0, sizeof(*stats));
 
@@ -142,6 +145,9 @@ __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 void
 __wt_stat_refresh_dsrc_stats(void *stats_arg)
 {
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_stat_refresh_dsrc_stats: %s\n", tid);
 	WT_DSRC_STATS *stats;
 
 	stats = (WT_DSRC_STATS *)stats_arg;
@@ -238,6 +244,9 @@ __wt_stat_refresh_dsrc_stats(void *stats_arg)
 void
 __wt_stat_aggregate_dsrc_stats(const void *child, const void *parent)
 {
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_stat_aggregate_dsrc_stats tid: %s\n", tid);
 	WT_DSRC_STATS *c, *p;
 
 	c = (WT_DSRC_STATS *)child;
@@ -340,6 +349,9 @@ __wt_stat_aggregate_dsrc_stats(const void *child, const void *parent)
 void
 __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 {
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_stat_init_connection_stats tid: %s\n", tid);
 	/* Clear, so can also be called for reinitialization. */
 	memset(stats, 0, sizeof(*stats));
 
@@ -561,6 +573,9 @@ __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 void
 __wt_stat_refresh_connection_stats(void *stats_arg)
 {
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_stat_refresh_connection_stats tid: %s\n", tid);
 	WT_CONNECTION_STATS *stats;
 
 	stats = (WT_CONNECTION_STATS *)stats_arg;

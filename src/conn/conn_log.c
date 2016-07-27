@@ -679,6 +679,7 @@ __wt_logmgr_open(WT_SESSION_IMPL *session)
 	/*
 	 * Start the log file close thread.
 	 */
+	printf("--- __wt_logmgr_open 1\n");
 	WT_RET(__wt_thread_create(conn->log_file_session,
 	    &conn->log_file_tid, __log_file_server, conn->log_file_session));
 	conn->log_file_tid_set = 1;
@@ -691,6 +692,7 @@ __wt_logmgr_open(WT_SESSION_IMPL *session)
 	    conn, "log-wrlsn-server", 0, 0, &conn->log_wrlsn_session));
 	WT_RET(__wt_cond_alloc(conn->log_wrlsn_session,
 	    "log write lsn server", 0, &conn->log_wrlsn_cond));
+	printf("--- __wt_logmgr_open 2\n");
 	WT_RET(__wt_thread_create(conn->log_wrlsn_session,
 	    &conn->log_wrlsn_tid, __log_wrlsn_server, conn->log_wrlsn_session));
 	conn->log_wrlsn_tid_set = 1;
@@ -720,6 +722,7 @@ __wt_logmgr_open(WT_SESSION_IMPL *session)
 		/*
 		 * Start the thread.
 		 */
+		printf("--- __wt_logmgr_open 3\n");
 		WT_RET(__wt_thread_create(conn->log_session,
 		    &conn->log_tid, __log_server, conn->log_session));
 		conn->log_tid_set = 1;

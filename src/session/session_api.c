@@ -98,6 +98,10 @@ __session_close(WT_SESSION *wt_session, const char *config)
 	conn = (WT_CONNECTION_IMPL *)wt_session->connection;
 	session = (WT_SESSION_IMPL *)wt_session;
 
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("__session_close id: %d tid: %s\n", session->id, tid);
+
 	SESSION_API_CALL(session, close, config, cfg);
 	WT_UNUSED(cfg);
 
@@ -1079,6 +1083,9 @@ int
 __wt_open_internal_session(WT_CONNECTION_IMPL *conn, const char *name,
     int uses_dhandles, int open_metadata, WT_SESSION_IMPL **sessionp)
 {
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_open_internal_session tid: %s\n", tid);
 	WT_SESSION_IMPL *session;
 
 	*sessionp = NULL;
@@ -1265,6 +1272,10 @@ err:	__wt_spin_unlock(session, &conn->api_lock);
 		WT_ASSERT(session, !F_ISSET(session, WT_SESSION_LOCKED_SCHEMA));
 		WT_RET(__wt_metadata_open(session_ret));
 	}
+
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_open_session id: %d tid: %s\n", session_ret->id, tid);
 
 	return (0);
 }

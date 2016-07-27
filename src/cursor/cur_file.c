@@ -113,6 +113,10 @@ __curfile_next(WT_CURSOR *cursor)
 	if ((ret = __wt_btcur_next(cbt, 0)) == 0)
 		F_SET(cursor, WT_CURSTD_KEY_INT | WT_CURSTD_VALUE_INT);
 
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	// printf("__curfile_next id: %d tid: %s\n", session->id, tid);
+
 err:	API_END_RET(session, ret);
 }
 
@@ -124,6 +128,8 @@ err:	API_END_RET(session, ret);
 static int
 __curfile_next_random(WT_CURSOR *cursor)
 {
+	printf("__curfile_next_random\n");
+
 	WT_CURSOR_BTREE *cbt;
 	WT_DECL_RET;
 	WT_SESSION_IMPL *session;
@@ -391,6 +397,10 @@ __wt_curfile_create(WT_SESSION_IMPL *session,
     WT_CURSOR *owner, const char *cfg[], int bulk, int bitmap,
     WT_CURSOR **cursorp)
 {
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("__wt_curfile_create id: %d tid: %s\n", session->id, tid);
+
 	WT_CURSOR_STATIC_INIT(iface,
 	    __wt_cursor_get_key,	/* get-key */
 	    __wt_cursor_get_value,	/* get-value */

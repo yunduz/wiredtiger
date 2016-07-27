@@ -365,6 +365,9 @@ __wt_sweep_create(WT_SESSION_IMPL *session)
 	WT_RET(__wt_cond_alloc(
 	    session, "handle sweep server", 0, &conn->sweep_cond));
 
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_sweep_create id: %d tid: %s\n", session->id, tid);
 	WT_RET(__wt_thread_create(
 	    session, &conn->sweep_tid, __sweep_server, session));
 	conn->sweep_tid_set = 1;

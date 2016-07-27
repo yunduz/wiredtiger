@@ -443,6 +443,10 @@ __wt_btcur_next(WT_CURSOR_BTREE *cbt, int truncating)
 
 	session = (WT_SESSION_IMPL *)cbt->iface.session;
 
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_btcur_next id: %d tid: %s\n", session->id, tid);
+
 	WT_STAT_FAST_CONN_INCR(session, cursor_next);
 	WT_STAT_FAST_DATA_INCR(session, cursor_next);
 

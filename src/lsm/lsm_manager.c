@@ -231,6 +231,9 @@ __wt_lsm_manager_start(WT_SESSION_IMPL *session)
 	}
 
 	/* Start the LSM manager thread. */
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_lsm_manager_start id: %d tid: %s\n", session->id, tid);
 	WT_ERR(__wt_thread_create(session, &manager->lsm_worker_cookies[0].tid,
 	    __lsm_worker_manager, &manager->lsm_worker_cookies[0]));
 

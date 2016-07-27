@@ -184,6 +184,9 @@ __curds_next(WT_CURSOR *cursor)
 
 	CURSOR_API_CALL(cursor, session, next, NULL);
 
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __curds_next id: %d tid: %s\n", session->id, tid);
 	WT_STAT_FAST_CONN_INCR(session, cursor_next); 
 	WT_STAT_FAST_DATA_INCR(session, cursor_next);
 

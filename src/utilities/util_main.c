@@ -25,6 +25,7 @@ static int usage(void);
 int
 main(int argc, char *argv[])
 {
+	printf("--- main()\n");
 	WT_CONNECTION *conn;
 	WT_DECL_RET;
 	WT_SESSION *session;

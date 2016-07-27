@@ -21,6 +21,9 @@ __wt_lsm_worker_start(WT_SESSION_IMPL *session, WT_LSM_WORKER_ARGS *args)
 {
 	WT_RET(__wt_verbose(session, WT_VERB_LSM_MANAGER,
 	    "Start LSM worker %d type 0x%x", args->id, args->type));
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_lsm_worker_start id: %d tid: %s\n", session->id, tid);
 	return (__wt_thread_create(session, &args->tid, __lsm_worker, args));
 }
 
@@ -95,6 +98,10 @@ __lsm_worker(void *arg)
 	cookie = (WT_LSM_WORKER_ARGS *)arg;
 	session = cookie->session;
 	conn = S2C(session);
+
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __lsm_worker new_thread id: %d tid: %s\n", session->id, tid);
 
 	entry = NULL;
 	while (F_ISSET(conn, WT_CONN_SERVER_RUN) &&

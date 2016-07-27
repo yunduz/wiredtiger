@@ -234,6 +234,7 @@ __evict_workers_resize(WT_SESSION_IMPL *session)
 		if (i < conn->evict_workers_min) {
 			++conn->evict_workers;
 			F_SET(&workers[i], WT_EVICT_WORKER_RUN);
+			printf("--- __evict_workers_resize\n");
 			WT_ERR(__wt_thread_create(workers[i].session,
 			    &workers[i].tid, __evict_worker, &workers[i]));
 		}
@@ -281,6 +282,9 @@ __wt_evict_create(WT_SESSION_IMPL *session)
 	 * have started to avoid it starting additional worker threads before
 	 * the worker's sessions are created.
 	 */
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_evict_create id: %d tid: %s\n", session->id, tid);
 	WT_RET(__wt_thread_create(
 	    session, &conn->evict_tid, __evict_server, session));
 	conn->evict_tid_set = 1;
@@ -490,6 +494,7 @@ __evict_pass(WT_SESSION_IMPL *session)
 				WT_RET(__evict_workers_resize(session));
 			worker = &conn->evict_workctx[conn->evict_workers++];
 			F_SET(worker, WT_EVICT_WORKER_RUN);
+			printf("--- __evict_pass\n");
 			WT_RET(__wt_thread_create(session,
 			    &worker->tid, __evict_worker, worker));
 		}

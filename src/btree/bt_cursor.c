@@ -445,9 +445,13 @@ __wt_btcur_search_near(WT_CURSOR_BTREE *cbt, int *exactp)
 		cursor->value.data = &cbt->v;
 		cursor->value.size = 1;
 		exact = 0;
-	} else if ((ret = __wt_btcur_next(cbt, 0)) != WT_NOTFOUND)
+	} else if ((ret = __wt_btcur_next(cbt, 0)) != WT_NOTFOUND) {//yunduz: bracket wasn't here
 		exact = 1;
-	else {
+
+		char tid[128];
+		__wt_thread_id(tid, sizeof(tid));
+		printf("--- __wt_btcur_search_near id: %d tid: %s\n", session->id, tid);
+	} else {//yunduz: first bracket wasn't here
 		WT_ERR(btree->type == BTREE_ROW ?
 		    __cursor_row_search(session, cbt, NULL, 1) :
 		    __cursor_col_search(session, cbt, NULL));
@@ -831,6 +835,9 @@ __wt_btcur_next_random(WT_CURSOR_BTREE *cbt)
 	if (btree->type != BTREE_ROW)
 		WT_RET(ENOTSUP);
 
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_btcur_next_random id: %d tid: %s\n", session->id, tid);
 	WT_STAT_FAST_CONN_INCR(session, cursor_next);
 	WT_STAT_FAST_DATA_INCR(session, cursor_next);
 
@@ -975,6 +982,7 @@ __cursor_truncate(WT_SESSION_IMPL *session,
     WT_CURSOR_BTREE *start, WT_CURSOR_BTREE *stop,
     int (*rmfunc)(WT_SESSION_IMPL *, WT_CURSOR_BTREE *, int))
 {
+	printf("--- __cursor_truncate\n");
 	WT_DECL_RET;
 
 	/*
