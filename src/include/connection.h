@@ -10,6 +10,7 @@
  * Default hash table size; use a prime number of buckets rather than assuming
  * a good hash (Reference Sedgewick, Algorithms in C, "Hash Functions").
  */
+#include "rlu.h"
 #define	WT_HASH_ARRAY_SIZE	509
 
 /*******************************************
@@ -256,6 +257,8 @@ struct __wt_connection_impl {
 
 	size_t     session_scratch_max;	/* Max scratch memory per session */
 
+	//yunduz
+	rlu_thread_data_t *main_rlu_thread_data;
 	/*
 	 * WiredTiger allocates space for a fixed number of hazard pointers
 	 * in each thread of control.

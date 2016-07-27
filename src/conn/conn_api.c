@@ -1819,6 +1819,11 @@ wiredtiger_open(const char *home, WT_EVENT_HANDLER *event_handler,
 	WT_RET(__wt_calloc_one(NULL, &conn));
 	conn->iface = stdc;
 
+	//yunduz
+	WT_RET(__wt_calloc_one(NULL, &(conn->main_rlu_thread_data)));
+	RLU_THREAD_INIT(conn->main_rlu_thread_data);
+	printf("Main RLU_THREAD_INIT\n");
+
 	/*
 	 * Immediately link the structure into the connection structure list:
 	 * the only thing ever looked at on that list is the database name,

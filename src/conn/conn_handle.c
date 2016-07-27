@@ -155,6 +155,12 @@ __wt_connection_destroy(WT_CONNECTION_IMPL *conn)
 	__wt_free(session, conn->error_prefix);
 	__wt_free(session, conn->sessions);
 
+	//yunduz
+	RLU_THREAD_FINISH(conn->main_rlu_thread_data);
+	__wt_free(session, conn->main_rlu_thread_data);
+	printf("RLU_THREAD_FINISH\n");
+	printf("Freed main_rlu_thread_data\n");
+
 	__wt_free(NULL, conn);
 	return (ret);
 }
