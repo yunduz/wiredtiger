@@ -6,6 +6,9 @@
  * See the file LICENSE for redistribution information.
  */
 
+//yunduz rlu
+#include "rlu.h"
+
 struct __wt_stats {
 	const char	*desc;				/* text description */
 	uint64_t	 v;				/* 64-bit value */
@@ -276,6 +279,8 @@ struct __wt_connection_stats {
 	WT_STATS txn_rollback;
 	WT_STATS txn_sync;
 	WT_STATS write_io;
+	//yunduz rlu
+	rlu_relaxed_obj_t *p_rlu_cursor_next;
 };
 
 /*
@@ -373,6 +378,8 @@ struct __wt_dsrc_stats {
 	WT_STATS session_compact;
 	WT_STATS session_cursor_open;
 	WT_STATS txn_update_conflict;
+	//yunduz rlu
+	rlu_relaxed_obj_t *p_rlu_cursor_next;
 };
 
 /* Statistics section: END */

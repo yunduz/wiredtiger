@@ -204,6 +204,7 @@ __async_config(WT_SESSION_IMPL *session,
 void
 __wt_async_stats_update(WT_SESSION_IMPL *session)
 {
+	//yunduz print
 	printf("--- __wt_async_stats_update\n");
 	WT_ASYNC *async;
 	WT_CONNECTION_IMPL *conn;
@@ -263,6 +264,7 @@ __async_start(WT_SESSION_IMPL *session)
 		/*
 		 * Start the threads.
 		 */
+		 //yunduz print
 		printf("--- __async_start\n");
 		WT_RET(__wt_thread_create(session, &async->worker_tids[i],
 		    __wt_async_worker, async->worker_sessions[i]));
@@ -380,6 +382,7 @@ __wt_async_reconfig(WT_SESSION_IMPL *session, const char *cfg[])
 			/*
 			 * Start the threads.
 			 */
+			 //yunduz print
 			printf("--- __wt_async_reconfigs\n");
 			WT_RET(__wt_thread_create(session,
 			    &async->worker_tids[i], __wt_async_worker,

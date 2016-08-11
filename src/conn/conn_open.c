@@ -15,9 +15,10 @@
 int
 __wt_connection_open(WT_CONNECTION_IMPL *conn, const char *cfg[])
 {
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_connection_open session_size:%d session_count:%d tid: %s\n", conn->session_size, conn->session_cnt, tid);
+	//yunduz print 
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_connection_open session_size:%d session_count:%d tid: %s\n", conn->session_size, conn->session_cnt, tid);
 	WT_SESSION_IMPL *session;
 
 	/* Default session. */

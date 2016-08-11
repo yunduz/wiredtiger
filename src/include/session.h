@@ -11,6 +11,10 @@
  *	Per-session cache of handles to avoid synchronization when opening
  *	cursors.
  */
+
+//yunduz rlu
+#include "rlu.h"
+
 struct __wt_data_handle_cache {
 	WT_DATA_HANDLE *dhandle;
 
@@ -186,4 +190,7 @@ struct WT_COMPILER_TYPE_ALIGN(WT_CACHE_LINE_ALIGNMENT) __wt_session_impl {
 	uint32_t   hazard_size;		/* Allocated slots in hazard array. */
 	uint32_t   nhazard;		/* Count of active hazard pointers */
 	WT_HAZARD *hazard;		/* Hazard pointer array */
+
+	//yunduz rlu
+	rlu_thread_data_t rlu_td;
 };

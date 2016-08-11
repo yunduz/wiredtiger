@@ -97,6 +97,7 @@ __curstat_lsm_init(
 
 		/* Aggregate statistics from each new chunk. */
 		__wt_stat_aggregate_dsrc_stats(new, stats);
+		printf("--- call __wt_stat_aggregate_dsrc_stats in __curstat_lsm_init \n");
 		WT_ERR(stat_cursor->close(stat_cursor));
 
 		if (!F_ISSET(chunk, WT_LSM_CHUNK_BLOOM))
@@ -125,6 +126,7 @@ __curstat_lsm_init(
 		WT_STAT_SET(new, bloom_page_read, WT_STAT(new, cache_read));
 
 		__wt_stat_aggregate_dsrc_stats(new, stats);
+		printf("--- call __wt_stat_aggregate_dsrc_stats in __curstat_lsm_init \n");
 		WT_ERR(stat_cursor->close(stat_cursor));
 	}
 
@@ -133,6 +135,7 @@ __curstat_lsm_init(
 
 	/* Aggregate, and optionally clear, LSM-level specific information. */
 	__wt_stat_aggregate_dsrc_stats(&lsm_tree->stats, stats);
+	printf("--- call __wt_stat_aggregate_dsrc_stats in __curstat_lsm_init \n");
 	if (F_ISSET(cst, WT_CONN_STAT_CLEAR))
 		__wt_stat_refresh_dsrc_stats(&lsm_tree->stats);
 

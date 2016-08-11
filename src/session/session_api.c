@@ -8,6 +8,9 @@
 
 #include "wt_internal.h"
 
+//yunduz rlu
+#include "rlu.h"
+
 static int __session_checkpoint(WT_SESSION *, const char *);
 static int __session_snapshot(WT_SESSION *, const char *);
 static int __session_rollback_transaction(WT_SESSION *, const char *);
@@ -98,9 +101,10 @@ __session_close(WT_SESSION *wt_session, const char *config)
 	conn = (WT_CONNECTION_IMPL *)wt_session->connection;
 	session = (WT_SESSION_IMPL *)wt_session;
 
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("__session_close id: %d tid: %s\n", session->id, tid);
+	//yunduz print
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("__session_close-1 id: %d tid: %s\n", session->id, tid);
 
 	SESSION_API_CALL(session, close, config, cfg);
 	WT_UNUSED(cfg);
@@ -163,6 +167,11 @@ __session_close(WT_SESSION *wt_session, const char *config)
 
 	/* Decrement the count of open sessions. */
 	WT_STAT_FAST_CONN_DECR(session, session_open);
+
+	//yunduz rlu
+	// printf("__session_close-2 id: %d tid: %s\n", session->id, tid);
+	RLU_THREAD_FINISH(&(session->rlu_td));
+	// printf("__session_close-3 id: %d tid: %s\n", session->id, tid);
 
 	/*
 	 * Sessions are re-used, clear the structure: the clear sets the active
@@ -1083,9 +1092,10 @@ int
 __wt_open_internal_session(WT_CONNECTION_IMPL *conn, const char *name,
     int uses_dhandles, int open_metadata, WT_SESSION_IMPL **sessionp)
 {
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_open_internal_session tid: %s\n", tid);
+	//yunduz print
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_open_internal_session tid: %s\n", tid);
 	WT_SESSION_IMPL *session;
 
 	*sessionp = NULL;
@@ -1255,6 +1265,14 @@ __wt_open_session(WT_CONNECTION_IMPL *conn,
 	WT_STATIC_ASSERT(offsetof(WT_SESSION_IMPL, iface) == 0);
 	*sessionp = session_ret;
 
+	// yunduz print
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_open_session-1 id: %d tid: %s\n", session_ret->id, tid);
+	//yunduz rlu
+	RLU_THREAD_INIT(&(session_ret->rlu_td));
+	// printf("--- __wt_open_session-2 id: %d tid: %s\n", session_ret->id, tid);
+
 	WT_STAT_FAST_CONN_INCR(session, session_open);
 
 err:	__wt_spin_unlock(session, &conn->api_lock);
@@ -1272,10 +1290,6 @@ err:	__wt_spin_unlock(session, &conn->api_lock);
 		WT_ASSERT(session, !F_ISSET(session, WT_SESSION_LOCKED_SCHEMA));
 		WT_RET(__wt_metadata_open(session_ret));
 	}
-
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_open_session id: %d tid: %s\n", session_ret->id, tid);
 
 	return (0);
 }

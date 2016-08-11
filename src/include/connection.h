@@ -257,8 +257,8 @@ struct __wt_connection_impl {
 
 	size_t     session_scratch_max;	/* Max scratch memory per session */
 
-	//yunduz
-	rlu_thread_data_t *main_rlu_thread_data;
+	//yunduz rlu
+	// rlu_thread_data_t *main_rlu_thread_data;
 	/*
 	 * WiredTiger allocates space for a fixed number of hazard pointers
 	 * in each thread of control.

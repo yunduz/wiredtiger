@@ -7,7 +7,7 @@
  */
 
 #include "wt_internal.h"
-//yunduz
+//yunduz rlu
 #include "rlu.h"
 
 static int __conn_statistics_config(WT_SESSION_IMPL *, const char *[]);
@@ -1763,12 +1763,13 @@ int
 wiredtiger_open(const char *home, WT_EVENT_HANDLER *event_handler,
     const char *config, WT_CONNECTION **wt_connp)
 {
-	//yunduz
+	//yunduz rlu
 	RLU_INIT(RLU_TYPE_FINE_GRAINED, 1);
 
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wiredtiger_open tid: %s\n", tid);
+	//yunduz print
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wiredtiger_open tid: %s\n", tid);
 	static const WT_CONNECTION stdc = {
 		__conn_async_flush,
 		__conn_async_new_op,
@@ -1819,10 +1820,10 @@ wiredtiger_open(const char *home, WT_EVENT_HANDLER *event_handler,
 	WT_RET(__wt_calloc_one(NULL, &conn));
 	conn->iface = stdc;
 
-	//yunduz
-	WT_RET(__wt_calloc_one(NULL, &(conn->main_rlu_thread_data)));
-	RLU_THREAD_INIT(conn->main_rlu_thread_data);
-	printf("Main RLU_THREAD_INIT\n");
+	//yunduz rlu
+	// WT_RET(__wt_calloc_one(NULL, &(conn->main_rlu_thread_data)));
+	// RLU_THREAD_INIT(conn->main_rlu_thread_data);
+	// printf("Main RLU_THREAD_INIT\n");
 
 	/*
 	 * Immediately link the structure into the connection structure list:

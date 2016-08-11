@@ -15,9 +15,10 @@
 int
 __wt_connection_init(WT_CONNECTION_IMPL *conn)
 {
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_connection_init tid: %s\n", tid);
+	//yunduz print
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_connection_init tid: %s\n", tid);
 	WT_SESSION_IMPL *session;
 	u_int i;
 
@@ -107,7 +108,14 @@ __wt_connection_init(WT_CONNECTION_IMPL *conn)
 int
 __wt_connection_destroy(WT_CONNECTION_IMPL *conn)
 {
-	printf("--- __wt_connection_destroy\n");
+	// yunduz print
+	// printf("--- __wt_connection_destroy\n");
+
+	//yunduz print 
+	// uint64_t combined_counter = RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(conn->stats.p_rlu_cursor_next, 0);
+	// printf("yunduz: combined conn counter = %" PRIu64 "\n", combined_counter);
+	// printf("yunduz: combined conn counter original = %" PRIu64 "\n", conn->stats.cursor_next.v);
+
 	WT_DECL_RET;
 	WT_SESSION_IMPL *session;
 	u_int i;
@@ -117,6 +125,11 @@ __wt_connection_destroy(WT_CONNECTION_IMPL *conn)
 		return (0);
 
 	session = conn->default_session;
+
+	// //yunduz rlu
+	// combined_counter = RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(session->dhandle->stats.p_rlu_cursor_next, 0);
+	// printf("yunduz: combined dsrc counter = %" PRIu64 "\n", combined_counter);
+	// printf("yunduz: combined dsrc counter original = %" PRIu64 "\n", session->dhandle->stats.cursor_next.v);
 
 	/*
 	 * Close remaining open files (before discarding the mutex, the
@@ -155,11 +168,11 @@ __wt_connection_destroy(WT_CONNECTION_IMPL *conn)
 	__wt_free(session, conn->error_prefix);
 	__wt_free(session, conn->sessions);
 
-	//yunduz
-	RLU_THREAD_FINISH(conn->main_rlu_thread_data);
-	__wt_free(session, conn->main_rlu_thread_data);
-	printf("RLU_THREAD_FINISH\n");
-	printf("Freed main_rlu_thread_data\n");
+	//yunduz rlu
+	// RLU_THREAD_FINISH(conn->main_rlu_thread_data);
+	// __wt_free(session, conn->main_rlu_thread_data);
+	// printf("RLU_THREAD_FINISH\n");
+	// printf("Freed main_rlu_thread_data\n");
 
 	__wt_free(NULL, conn);
 	return (ret);

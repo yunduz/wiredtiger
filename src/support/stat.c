@@ -2,12 +2,16 @@
 
 #include "wt_internal.h"
 
+//yunduz rlu
+#include "rlu.h"
+
 void
 __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 {
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_stat_init_dsrc_stats id: %s\n", tid);
+	// yunduz print
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_stat_init_dsrc_stats id: %s\n", tid);
 	/* Clear, so can also be called for reinitialization. */
 	memset(stats, 0, sizeof(*stats));
 
@@ -140,6 +144,16 @@ __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 	stats->session_compact.desc = "session: object compaction";
 	stats->session_cursor_open.desc = "session: open cursor count";
 	stats->txn_update_conflict.desc = "transaction: update conflicts";
+
+	//yunduz rlu
+	stats->p_rlu_cursor_next = (rlu_relaxed_obj_t *)RLU_RELAXED_ALLOC(sizeof(uint64_t), 1);
+	if (stats->p_rlu_cursor_next == NULL){
+        printf("yunduz:  OUT OF MEMORY\n");
+        exit(1);
+    }
+    // yunduz print
+    // printf("yunduz: created dsrc relaxed counter\n");
+
 }
 
 void
@@ -349,9 +363,10 @@ __wt_stat_aggregate_dsrc_stats(const void *child, const void *parent)
 void
 __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 {
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_stat_init_connection_stats tid: %s\n", tid);
+	// yunduz print
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_stat_init_connection_stats tid: %s\n", tid);
 	/* Clear, so can also be called for reinitialization. */
 	memset(stats, 0, sizeof(*stats));
 
@@ -568,6 +583,15 @@ __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 	stats->txn_sync.desc = "transaction: transaction sync calls";
 	stats->txn_commit.desc = "transaction: transactions committed";
 	stats->txn_rollback.desc = "transaction: transactions rolled back";
+
+	//yunduz rlu
+	stats->p_rlu_cursor_next = (rlu_relaxed_obj_t *)RLU_RELAXED_ALLOC(sizeof(uint64_t), 1);
+	if (stats->p_rlu_cursor_next == NULL){
+        printf("yunduz:  OUT OF MEMORY\n");
+        exit(1);
+    }
+    // yunduz print
+    // printf("yunduz: created connection relaxed counter\n");
 }
 
 void
