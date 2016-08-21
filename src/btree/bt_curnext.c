@@ -462,7 +462,7 @@ __wt_btcur_next(WT_CURSOR_BTREE *cbt, int truncating)
 	TEST_RLU_INCR(session, p_rlu_cursor_next);
 	// printf("yunduz: local conn counter = %" PRIu64 "(%p) id: %d tid: %s\n", *local_counter, local_counter, session->id, tid);
 
-	uint64_t combined_counter = RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(S2C(session)->stats.p_rlu_cursor_next, 0);
+	uint64_t combined_counter = RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(S2C(session)->stats.p_rlu_cursor_next.v, 0);
 	printf("yunduz: combined conn counter = %" PRIu64 "\n", combined_counter);
 	printf("yunduz: combined conn counter original = %" PRIu64 "\n", WT_CONN_STAT(session, cursor_next)/*S2C(session)->stats.cursor_next.v*/);
 

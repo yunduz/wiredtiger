@@ -12,6 +12,8 @@
 struct __wt_stats {
 	const char	*desc;				/* text description */
 	uint64_t	 v;				/* 64-bit value */
+	// yunduz rlu
+	// rlu_relaxed_obj_t *v;
 };
 
 /*
@@ -43,8 +45,14 @@ struct __wt_stats {
 // #define	TEST_FLD(session, fld) do {				\
 // 	(&S2C(session)->stats)->fld += (500);				\
 // } while (0)
+typedef struct rlu_test {
+	const char	*desc;				/* text description */
+	rlu_relaxed_obj_t *v;				
+	// yunduz rlu
+	// rlu_relaxed_obj_t *v;
+} rlu_test_t;
 #define	TEST_RLU_INCR(session, fld) do {				\
-	uint64_t *local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), (&S2C(session)->stats)->fld);	\
+	uint64_t *local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), (&S2C(session)->stats)->fld.v);	\
 	(*local_counter)++;	\
 } while (0)
 
@@ -290,7 +298,8 @@ struct __wt_connection_stats {
 	WT_STATS txn_sync;
 	WT_STATS write_io;
 	//yunduz rlu
-	rlu_relaxed_obj_t *p_rlu_cursor_next;
+	// rlu_relaxed_obj_t *p_rlu_cursor_next;
+	rlu_test_t p_rlu_cursor_next;
 	// int test_val;
 };
 

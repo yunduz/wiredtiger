@@ -585,8 +585,8 @@ __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 	stats->txn_rollback.desc = "transaction: transactions rolled back";
 
 	//yunduz rlu
-	stats->p_rlu_cursor_next = (rlu_relaxed_obj_t *)RLU_RELAXED_ALLOC(sizeof(uint64_t), 1);
-	if (stats->p_rlu_cursor_next == NULL){
+	stats->p_rlu_cursor_next.v = (rlu_relaxed_obj_t *)RLU_RELAXED_ALLOC(sizeof(uint64_t), 1);
+	if (stats->p_rlu_cursor_next.v == NULL){
         printf("yunduz:  OUT OF MEMORY\n");
         exit(1);
     }

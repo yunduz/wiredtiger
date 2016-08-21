@@ -16,6 +16,7 @@ static int
 __curstat_lsm_init(
     WT_SESSION_IMPL *session, const char *uri, WT_CURSOR_STAT *cst)
 {
+	printf("--- __curstat_lsm_init\n");
 	WT_CURSOR *stat_cursor;
 	WT_DECL_ITEM(uribuf);
 	WT_DECL_RET;
