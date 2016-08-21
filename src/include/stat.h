@@ -39,6 +39,16 @@ struct __wt_stats {
 	(stats)->fld.v = (uint64_t)(value);				\
 } while (0)
 
+// yunduz
+// #define	TEST_FLD(session, fld) do {				\
+// 	(&S2C(session)->stats)->fld += (500);				\
+// } while (0)
+#define	TEST_RLU_INCR(session, fld) do {				\
+	uint64_t *local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), (&S2C(session)->stats)->fld);	\
+	(*local_counter)++;	\
+} while (0)
+
+
 /*
  * Read/write statistics if "fast" statistics are configured.
  */
@@ -281,6 +291,7 @@ struct __wt_connection_stats {
 	WT_STATS write_io;
 	//yunduz rlu
 	rlu_relaxed_obj_t *p_rlu_cursor_next;
+	// int test_val;
 };
 
 /*

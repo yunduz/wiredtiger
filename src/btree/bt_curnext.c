@@ -451,22 +451,26 @@ __wt_btcur_next(WT_CURSOR_BTREE *cbt, int truncating)
 	// printf("--- __wt_btcur_next id: %d tid: %s\n", session->id, tid);
 	// printf("--- &(session->dhandle->stats): %p %s\n", &(session->dhandle->stats), session->dhandle->stats.cursor_next.desc);
 
-	// WT_STAT_FAST_CONN_INCR(session, cursor_next);
-	// WT_STAT_FAST_DATA_INCR(session, cursor_next);
+	WT_STAT_FAST_CONN_INCR(session, cursor_next);
+	WT_STAT_FAST_DATA_INCR(session, cursor_next);
+	// TEST_FLD(session, test_val);
+	// printf("TEST_FLD = %d\n", S2C(session)->stats.test_val);
 
 	//yunduz rlu
-	uint64_t *local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), S2C(session)->stats.p_rlu_cursor_next);
-	(*local_counter)++;
+	// uint64_t *local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), S2C(session)->stats.p_rlu_cursor_next);
+	// (*local_counter)++;
+	TEST_RLU_INCR(session, p_rlu_cursor_next);
 	// printf("yunduz: local conn counter = %" PRIu64 "(%p) id: %d tid: %s\n", *local_counter, local_counter, session->id, tid);
 
-	// uint64_t combined_counter = RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(S2C(session)->stats.p_rlu_cursor_next, 0);
-	// printf("yunduz: combined conn counter = %" PRIu64 "\n", combined_counter);
+	uint64_t combined_counter = RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(S2C(session)->stats.p_rlu_cursor_next, 0);
+	printf("yunduz: combined conn counter = %" PRIu64 "\n", combined_counter);
+	printf("yunduz: combined conn counter original = %" PRIu64 "\n", WT_CONN_STAT(session, cursor_next)/*S2C(session)->stats.cursor_next.v*/);
 
-	local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), session->dhandle->stats.p_rlu_cursor_next);
+	uint64_t *local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), session->dhandle->stats.p_rlu_cursor_next);
 	(*local_counter)++;
 	// printf("yunduz: local dsrc counter = %" PRIu64 "(%p) id: %d tid: %s\n", *local_counter, local_counter, session->id, tid);
 
-	// uint64_t combined_counter = RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(session->dhandle->stats.p_rlu_cursor_next, 0);
+	// combined_counter = RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(session->dhandle->stats.p_rlu_cursor_next, 0);
 	// printf("yunduz: combined dsrc counter = %" PRIu64 "\n", combined_counter);
 	// printf("yunduz: combined dscr counter original = %" PRIu64 "\n", session->dhandle->stats.cursor_next.v);
 
