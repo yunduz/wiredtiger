@@ -5,6 +5,17 @@
 //yunduz rlu
 #include "rlu.h"
 
+//yunduz rlu
+void __wt_stat_init_rlu_relaxed_counter(rlu_relaxed_obj_t **counter)
+{
+	// printf("counter addr 1 %p\n", counter);
+	*counter = (rlu_relaxed_obj_t *)RLU_RELAXED_ALLOC(sizeof(uint64_t), 1);
+	if (counter == NULL){
+        printf("yunduz:  OUT OF MEMORY\n");
+        exit(1);
+    }
+}
+
 void
 __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 {
@@ -352,17 +363,6 @@ __wt_stat_aggregate_dsrc_stats(const void *child, const void *parent)
 	p->session_compact.v += c->session_compact.v;
 	p->session_cursor_open.v += c->session_cursor_open.v;
 	p->txn_update_conflict.v += c->txn_update_conflict.v;
-}
-
-//yunduz rlu
-void __wt_stat_init_rlu_relaxed_counter(rlu_relaxed_obj_t **counter)
-{
-	// printf("counter addr 1 %p\n", counter);
-	*counter = (rlu_relaxed_obj_t *)RLU_RELAXED_ALLOC(sizeof(uint64_t), 1);
-	if (counter == NULL){
-        printf("yunduz:  OUT OF MEMORY\n");
-        exit(1);
-    }
 }
 
 void
