@@ -399,7 +399,7 @@ struct __wt_dsrc_stats {
 	WT_STATS session_cursor_open;
 	WT_STATS txn_update_conflict;
 	//yunduz rlu
-	rlu_relaxed_obj_t *p_rlu_cursor_next;
+	rlu_test_t p_rlu_cursor_next;
 };
 
 /* Statistics section: END */
