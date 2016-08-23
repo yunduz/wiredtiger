@@ -15,15 +15,20 @@
 int
 __wt_connection_open(WT_CONNECTION_IMPL *conn, const char *cfg[])
 {
-	//yunduz print 
-	// char tid[128];
-	// __wt_thread_id(tid, sizeof(tid));
-	// printf("--- __wt_connection_open session_size:%d session_count:%d tid: %s\n", conn->session_size, conn->session_cnt, tid);
 	WT_SESSION_IMPL *session;
 
 	/* Default session. */
 	session = conn->default_session;
 	WT_ASSERT(session, session->iface.connection == &conn->iface);
+
+	//yunduz print 
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_connection_open session_size:%d session_count:%d tid: %s id: %d\n", conn->session_size, conn->session_cnt, tid, session->id);
+
+	// yunduz rlu
+	// initialize rlu for the main thread
+	RLU_THREAD_INIT(&(session->rlu_td));
 
 	/*
 	 * Tell internal server threads to run: this must be set before opening

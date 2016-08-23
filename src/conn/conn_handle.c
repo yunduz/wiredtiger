@@ -116,6 +116,7 @@ __wt_connection_destroy(WT_CONNECTION_IMPL *conn)
 	// printf("yunduz: combined conn counter = %" PRIu64 "\n", combined_counter);
 	// printf("yunduz: combined conn counter original = %" PRIu64 "\n", conn->stats.cursor_next.v);
 
+
 	WT_DECL_RET;
 	WT_SESSION_IMPL *session;
 	u_int i;
@@ -130,6 +131,9 @@ __wt_connection_destroy(WT_CONNECTION_IMPL *conn)
 	// combined_counter = RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(session->dhandle->stats.p_rlu_cursor_next, 0);
 	// printf("yunduz: combined dsrc counter = %" PRIu64 "\n", combined_counter);
 	// printf("yunduz: combined dsrc counter original = %" PRIu64 "\n", session->dhandle->stats.cursor_next.v);
+	printf("yunduz: combined conn cursor_next = %" PRIu64 "\n", WT_CONN_STAT(session, cursor_next));
+	printf("yunduz: combined conn cursor_create = %" PRIu64 "\n", WT_CONN_STAT(session, cursor_create));
+	printf("yunduz: combined conn block_read = %" PRIu64 "\n", WT_CONN_STAT(session, block_read));
 
 	/*
 	 * Close remaining open files (before discarding the mutex, the

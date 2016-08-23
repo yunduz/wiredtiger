@@ -54,8 +54,10 @@ __wt_calloc(WT_SESSION_IMPL *session, size_t number, size_t size, void *retp)
 	 */
 	WT_ASSERT(session, number != 0 && size != 0);
 
-	if (session != NULL)
-		WT_STAT_FAST_CONN_INCR(session, memory_allocation);
+	// yunduz temp comment
+	// if (session != NULL)
+	// 	printf("ALLOCATING MEMORY\n");
+	// 	WT_STAT_FAST_CONN_INCR(session, memory_allocation);
 
 	if ((p = calloc(number, size)) == NULL)
 		WT_RET_MSG(session, __wt_errno(), "memory allocation");
