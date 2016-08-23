@@ -87,11 +87,14 @@ __wt_curstat_table_init(WT_SESSION_IMPL *session,
 		WT_ERR(__wt_curstat_open(
 		    session, buf->data, cfg, &stat_cursor));
 		new = (WT_DSRC_STATS *)WT_CURSOR_STATS(stat_cursor);
-		if (i == 0)
+		if (i == 0) {
 			*stats = *new;
-		else
-			__wt_stat_aggregate_dsrc_stats(new, stats);
+		}
+		else {
+			//yunduz temp comment
+			// __wt_stat_aggregate_dsrc_stats(new, stats);
 			printf("--- call __wt_stat_aggregate_dsrc_stats in __wt_curstat_table_init \n");
+		}
 		WT_ERR(stat_cursor->close(stat_cursor));
 	}
 
@@ -103,7 +106,8 @@ __wt_curstat_table_init(WT_SESSION_IMPL *session,
 		WT_ERR(__wt_curstat_open(
 		    session, buf->data, cfg, &stat_cursor));
 		new = (WT_DSRC_STATS *)WT_CURSOR_STATS(stat_cursor);
-		__wt_stat_aggregate_dsrc_stats(new, stats);
+		//yunduz temp comment
+		// __wt_stat_aggregate_dsrc_stats(new, stats);
 		printf("--- call __wt_stat_aggregate_dsrc_stats in __wt_curstat_table_init \n");
 		WT_ERR(stat_cursor->close(stat_cursor));
 	}

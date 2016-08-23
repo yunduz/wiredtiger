@@ -16,9 +16,9 @@ int
 __wt_connection_init(WT_CONNECTION_IMPL *conn)
 {
 	//yunduz print
-	// char tid[128];
-	// __wt_thread_id(tid, sizeof(tid));
-	// printf("--- __wt_connection_init tid: %s\n", tid);
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_connection_init tid: %s\n", tid);
 	WT_SESSION_IMPL *session;
 	u_int i;
 

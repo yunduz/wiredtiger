@@ -94,10 +94,11 @@ __curstat_lsm_init(
 		 * top-level.
 		 */
 		new = (WT_DSRC_STATS *)WT_CURSOR_STATS(stat_cursor);
-		WT_STAT_SET(new, lsm_generation_max, chunk->generation);
+		WT_STAT_SET(session, new, lsm_generation_max, chunk->generation);
 
 		/* Aggregate statistics from each new chunk. */
-		__wt_stat_aggregate_dsrc_stats(new, stats);
+		// yunduz temp comment
+		// __wt_stat_aggregate_dsrc_stats(new, stats);
 		printf("--- call __wt_stat_aggregate_dsrc_stats in __curstat_lsm_init \n");
 		WT_ERR(stat_cursor->close(stat_cursor));
 
@@ -105,7 +106,7 @@ __curstat_lsm_init(
 			continue;
 
 		/* Maintain a count of bloom filters. */
-		WT_STAT_INCR(&lsm_tree->stats, bloom_count);
+		WT_STAT_INCR(session, &lsm_tree->stats, bloom_count);
 
 		/* Get the bloom filter's underlying object. */
 		WT_ERR(__wt_buf_fmt(
@@ -119,26 +120,29 @@ __curstat_lsm_init(
 		 * into the top-level.
 		 */
 		new = (WT_DSRC_STATS *)WT_CURSOR_STATS(stat_cursor);
-		WT_STAT_SET(new,
+		WT_STAT_SET(session, new,
 		    bloom_size, (chunk->count * lsm_tree->bloom_bit_count) / 8);
-		WT_STAT_SET(new, bloom_page_evict,
-		    WT_STAT(new, cache_eviction_clean) +
-		    WT_STAT(new, cache_eviction_dirty));
-		WT_STAT_SET(new, bloom_page_read, WT_STAT(new, cache_read));
+		WT_STAT_SET(session, new, bloom_page_evict,
+		    WT_STAT(session, new, cache_eviction_clean) +
+		    WT_STAT(session, new, cache_eviction_dirty));
+		WT_STAT_SET(session, new, bloom_page_read, WT_STAT(session, new, cache_read));
 
-		__wt_stat_aggregate_dsrc_stats(new, stats);
+		// yunduz temp comment
+		// __wt_stat_aggregate_dsrc_stats(new, stats);
 		printf("--- call __wt_stat_aggregate_dsrc_stats in __curstat_lsm_init \n");
 		WT_ERR(stat_cursor->close(stat_cursor));
 	}
 
 	/* Set statistics that aren't aggregated directly into the cursor */
-	WT_STAT_SET(stats, lsm_chunk_count, lsm_tree->nchunks);
+	WT_STAT_SET(session, stats, lsm_chunk_count, lsm_tree->nchunks);
 
 	/* Aggregate, and optionally clear, LSM-level specific information. */
-	__wt_stat_aggregate_dsrc_stats(&lsm_tree->stats, stats);
+	//yunduz temp comment
+	// __wt_stat_aggregate_dsrc_stats(&lsm_tree->stats, stats);
 	printf("--- call __wt_stat_aggregate_dsrc_stats in __curstat_lsm_init \n");
-	if (F_ISSET(cst, WT_CONN_STAT_CLEAR))
-		__wt_stat_refresh_dsrc_stats(&lsm_tree->stats);
+	//yunduz temp comment
+	// if (F_ISSET(cst, WT_CONN_STAT_CLEAR))
+	// 	__wt_stat_refresh_dsrc_stats(&lsm_tree->stats);
 
 	__wt_curstat_dsrc_final(cst);
 

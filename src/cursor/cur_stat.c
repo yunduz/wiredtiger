@@ -357,7 +357,10 @@ __curstat_conn_init(WT_SESSION_IMPL *session, WT_CURSOR_STAT *cst)
 	__wt_conn_stat_init(session);
 	cst->u.conn_stats = conn->stats;
 	if (F_ISSET(cst, WT_CONN_STAT_CLEAR))
-		__wt_stat_refresh_connection_stats(&conn->stats);
+	{
+		//yunduz temp comment
+		// __wt_stat_refresh_connection_stats(&conn->stats);
+	}
 
 	cst->stats_first = cst->stats = (WT_STATS *)&cst->u.conn_stats;
 	cst->stats_base = WT_CONNECTION_STATS_BASE;
@@ -400,8 +403,9 @@ __curstat_file_init(WT_SESSION_IMPL *session,
 	 */
 	if ((ret = __wt_btree_stat_init(session, cst)) == 0) {
 		cst->u.dsrc_stats = dhandle->stats;
-		if (F_ISSET(cst, WT_CONN_STAT_CLEAR))
-			__wt_stat_refresh_dsrc_stats(&dhandle->stats);
+		//yunduz temp comment
+		// if (F_ISSET(cst, WT_CONN_STAT_CLEAR))
+		// 	__wt_stat_refresh_dsrc_stats(&dhandle->stats);
 		__wt_curstat_dsrc_final(cst);
 	}
 

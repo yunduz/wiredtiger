@@ -11,34 +11,57 @@
 
 struct __wt_stats {
 	const char	*desc;				/* text description */
-	uint64_t	 v;				/* 64-bit value */
+	// uint64_t	 v;				/* 64-bit value */
 	// yunduz rlu
-	// rlu_relaxed_obj_t *v;
+	rlu_relaxed_obj_t *v;
 };
+
+#define RLU_RELAXED_IDX 0
 
 /*
  * Read/write statistics without any test for statistics configuration.
  */
-#define	WT_STAT(stats, fld)						\
-	((stats)->fld.v)
-#define	WT_STAT_ATOMIC_DECRV(stats, fld, value) do {			\
-	(void)WT_ATOMIC_SUB8(WT_STAT(stats, fld), (value));		\
+// #define	WT_STAT(stats, fld)						\
+// 	((stats)->fld.v)
+#define	WT_STAT(session, stats, fld)	\
+	RLU_RELAXED_GET_COUNTER_VAL_UINT64_T((stats)->fld.v, RLU_RELAXED_IDX)
+// #define	WT_STAT_ATOMIC_DECRV(session, stats, fld, value) do {			\
+// 	(void)WT_ATOMIC_SUB8(WT_STAT(stats, fld), (value));		\
+// } while (0)
+#define	WT_STAT_ATOMIC_DECRV(session, stats, fld, value) do {			\
+	WT_STAT_DECRV(session, stats, fld, value);	\
 } while (0)
-#define	WT_STAT_ATOMIC_DECR(stats, fld) WT_STAT_ATOMIC_DECRV(stats, fld, 1)
-#define	WT_STAT_ATOMIC_INCRV(stats, fld, value) do {			\
-	(void)WT_ATOMIC_ADD8(WT_STAT(stats, fld), (value));		\
+#define	WT_STAT_ATOMIC_DECR(session, stats, fld) WT_STAT_ATOMIC_DECRV(session, stats, fld, 1)
+// #define	WT_STAT_ATOMIC_INCRV(session, stats, fld, value) do {			\
+// 	(void)WT_ATOMIC_ADD8(WT_STAT(stats, fld), (value));		\
+// } while (0)
+#define	WT_STAT_ATOMIC_INCRV(session, stats, fld, value) do {			\
+	WT_STAT_INCRV(session, stats, fld, value);	\
 } while (0)
-#define	WT_STAT_ATOMIC_INCR(stats, fld) WT_STAT_ATOMIC_INCRV(stats, fld, 1)
-#define	WT_STAT_DECRV(stats, fld, value) do {				\
-	(stats)->fld.v -= (value);					\
+#define	WT_STAT_ATOMIC_INCR(session, stats, fld) WT_STAT_ATOMIC_INCRV(session, stats, fld, 1)
+// #define	WT_STAT_DECRV(session, stats, fld, value) do {				\
+// 	(stats)->fld.v -= (value);					\
+// } while (0)
+#define	WT_STAT_DECRV(session, stats, fld, value) do {				\
+	uint64_t *local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), (stats)->fld.v);	\
+	*local_counter -= (value);	\
 } while (0)
-#define	WT_STAT_DECR(stats, fld) WT_STAT_DECRV(stats, fld, 1)
-#define	WT_STAT_INCRV(stats, fld, value) do {				\
-	(stats)->fld.v += (value);					\
+#define	WT_STAT_DECR(session, stats, fld) WT_STAT_DECRV(session, stats, fld, 1)
+// #define	WT_STAT_INCRV(session, stats, fld, value) do {				\
+// 	(stats)->fld.v += (value);					\
+// } while (0)
+#define	WT_STAT_INCRV(session, stats, fld, value) do {				\
+	uint64_t *local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), (stats)->fld.v);	\
+	*local_counter += (value);	\
 } while (0)
-#define	WT_STAT_INCR(stats, fld) WT_STAT_INCRV(stats, fld, 1)
-#define	WT_STAT_SET(stats, fld, value) do {				\
-	(stats)->fld.v = (uint64_t)(value);				\
+#define	WT_STAT_INCR(session, stats, fld) WT_STAT_INCRV(session, stats, fld, 1)
+// #define	WT_STAT_SET(session, stats, fld, value) do {				\
+// 	(stats)->fld.v = (uint64_t)(value);				\
+// } while (0)
+#define	WT_STAT_SET(session, stats, fld, value) do {				\
+	RLU_RELAXED_CLEAR_VAL_UINT64_T((stats)->fld.v, RLU_RELAXED_IDX);	\
+	uint64_t *local_counter = (uint64_t*) RLU_RELAXED_DEREF_TO_WRITE(&(session->rlu_td), (stats)->fld.v);	\
+	*local_counter = (uint64_t)(value);	\
 } while (0)
 
 // yunduz
@@ -62,31 +85,31 @@ typedef struct rlu_test {
  */
 #define	WT_STAT_FAST_ATOMIC_DECRV(session, stats, fld, value) do {	\
 	if (FLD_ISSET(S2C(session)->stat_flags, WT_CONN_STAT_FAST))	\
-		WT_STAT_ATOMIC_DECRV(stats, fld, value);		\
+		WT_STAT_ATOMIC_DECRV(session, stats, fld, value);		\
 } while (0)
 #define	WT_STAT_FAST_ATOMIC_DECR(session, stats, fld)			\
 	WT_STAT_FAST_ATOMIC_DECRV(session, stats, fld, 1)
 #define	WT_STAT_FAST_ATOMIC_INCRV(session, stats, fld, value) do {	\
 	if (FLD_ISSET(S2C(session)->stat_flags, WT_CONN_STAT_FAST))	\
-		WT_STAT_ATOMIC_INCRV(stats, fld, value);		\
+		WT_STAT_ATOMIC_INCRV(session, stats, fld, value);		\
 } while (0)
 #define	WT_STAT_FAST_ATOMIC_INCR(session, stats, fld)			\
 	WT_STAT_FAST_ATOMIC_INCRV(session, stats, fld, 1)
 #define	WT_STAT_FAST_DECRV(session, stats, fld, value) do {		\
 	if (FLD_ISSET(S2C(session)->stat_flags, WT_CONN_STAT_FAST))	\
-		WT_STAT_DECRV(stats, fld, value);			\
+		WT_STAT_DECRV(session, stats, fld, value);			\
 } while (0)
 #define	WT_STAT_FAST_DECR(session, stats, fld)				\
 	WT_STAT_FAST_DECRV(session, stats, fld, 1)
 #define	WT_STAT_FAST_INCRV(session, stats, fld, value) do {		\
 	if (FLD_ISSET(S2C(session)->stat_flags, WT_CONN_STAT_FAST))	\
-		WT_STAT_INCRV(stats, fld, value);			\
+		WT_STAT_INCRV(session, stats, fld, value);			\
 } while (0)
 #define	WT_STAT_FAST_INCR(session, stats, fld)				\
 	WT_STAT_FAST_INCRV(session, stats, fld, 1)
 #define	WT_STAT_FAST_SET(session, stats, fld, value) do {		\
 	if (FLD_ISSET(S2C(session)->stat_flags, WT_CONN_STAT_FAST))	\
-		WT_STAT_SET(stats, fld, value);				\
+		WT_STAT_SET(session, stats, fld, value);				\
 } while (0)
 
 /*
@@ -140,8 +163,10 @@ typedef struct rlu_test {
 } while (0)
 
 /* Connection handle statistics value. */
-#define	WT_CONN_STAT(session, fld)					\
-	WT_STAT(&S2C(session)->stats, fld)
+// #define	WT_CONN_STAT(session, fld)					\
+// 	WT_STAT(&S2C(session)->stats, fld)
+#define	WT_CONN_STAT(session, fld)	\
+	RLU_RELAXED_GET_COUNTER_VAL_UINT64_T((&S2C(session)->stats)->fld.v, RLU_RELAXED_IDX)
 
 /*
  * DO NOT EDIT: automatically built by dist/stat.py.
@@ -299,7 +324,7 @@ struct __wt_connection_stats {
 	WT_STATS write_io;
 	//yunduz rlu
 	// rlu_relaxed_obj_t *p_rlu_cursor_next;
-	rlu_test_t p_rlu_cursor_next;
+	// rlu_test_t p_rlu_cursor_next;
 	// int test_val;
 };
 
@@ -399,7 +424,7 @@ struct __wt_dsrc_stats {
 	WT_STATS session_cursor_open;
 	WT_STATS txn_update_conflict;
 	//yunduz rlu
-	rlu_test_t p_rlu_cursor_next;
+	// rlu_test_t p_rlu_cursor_next;
 };
 
 /* Statistics section: END */
