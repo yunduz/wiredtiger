@@ -184,6 +184,7 @@ __curds_next(WT_CURSOR *cursor)
 
 	CURSOR_API_CALL(cursor, session, next, NULL);
 
+	//yunduz print
 	char tid[128];
 	__wt_thread_id(tid, sizeof(tid));
 	printf("--- __curds_next id: %d tid: %s\n", session->id, tid);

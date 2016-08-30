@@ -448,6 +448,7 @@ __wt_btcur_search_near(WT_CURSOR_BTREE *cbt, int *exactp)
 	} else if ((ret = __wt_btcur_next(cbt, 0)) != WT_NOTFOUND) {//yunduz: bracket wasn't here
 		exact = 1;
 
+		// yunduz print
 		char tid[128];
 		__wt_thread_id(tid, sizeof(tid));
 		printf("--- __wt_btcur_search_near id: %d tid: %s\n", session->id, tid);
@@ -835,6 +836,7 @@ __wt_btcur_next_random(WT_CURSOR_BTREE *cbt)
 	if (btree->type != BTREE_ROW)
 		WT_RET(ENOTSUP);
 
+	//yunduz print
 	char tid[128];
 	__wt_thread_id(tid, sizeof(tid));
 	printf("--- __wt_btcur_next_random id: %d tid: %s\n", session->id, tid);

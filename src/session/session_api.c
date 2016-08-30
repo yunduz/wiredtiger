@@ -1266,9 +1266,9 @@ __wt_open_session(WT_CONNECTION_IMPL *conn,
 	*sessionp = session_ret;
 
 	// yunduz print
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_open_session-1 id: %d tid: %s\n", session_ret->id, tid);
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_open_session-1 id: %d tid: %s\n", session_ret->id, tid);
 	//yunduz rlu
 	RLU_THREAD_INIT(&(session_ret->rlu_td));
 	// printf("--- __wt_open_session-2 id: %d tid: %s\n", session_ret->id, tid);

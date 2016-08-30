@@ -167,6 +167,7 @@ __statlog_dump(WT_SESSION_IMPL *session, const char *name, int conn_stats)
 	 * If we don't find an underlying object, silently ignore it, the object
 	 * may exist only intermittently.
 	 */
+	 // yunduz rlu
 	switch (ret = __wt_curstat_open(session, uri, cfg, &cursor)) {
 	case 0:
 		max = conn_stats ?
@@ -177,7 +178,7 @@ __statlog_dump(WT_SESSION_IMPL *session, const char *name, int conn_stats)
 			WT_ERR(__wt_fprintf(conn->stat_fp,
 			    "%s %" PRIu64 " %s %s\n",
 			    conn->stat_stamp,
-			    stats->v, name, stats->desc));
+			    /*stats->v*/WT_STAT_FROM_STRUCT(stats->v), name, stats->desc));
 		WT_ERR(cursor->close(cursor));
 		break;
 	case EBUSY:

@@ -18,6 +18,13 @@ struct __wt_stats {
 
 #define RLU_RELAXED_IDX 0
 
+
+// yunduz rlu
+// read stat value (needed when logging statistics, for some reason 
+// they don't use WT_STAT/WT_CONN_STAT macros)
+#define WT_STAT_FROM_STRUCT(rlu_p_counter)	\
+	RLU_RELAXED_GET_COUNTER_VAL_UINT64_T(rlu_p_counter, RLU_RELAXED_IDX)
+
 /*
  * Read/write statistics without any test for statistics configuration.
  */

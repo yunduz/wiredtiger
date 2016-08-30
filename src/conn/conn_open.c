@@ -22,9 +22,9 @@ __wt_connection_open(WT_CONNECTION_IMPL *conn, const char *cfg[])
 	WT_ASSERT(session, session->iface.connection == &conn->iface);
 
 	//yunduz print 
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_connection_open session_size:%d session_count:%d tid: %s id: %d\n", conn->session_size, conn->session_cnt, tid, session->id);
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_connection_open session_size:%d session_count:%d tid: %s id: %d\n", conn->session_size, conn->session_cnt, tid, session->id);
 
 	// yunduz rlu
 	// initialize rlu for the main thread

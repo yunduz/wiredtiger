@@ -21,9 +21,9 @@ void
 __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 {
 	// yunduz print
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_stat_init_dsrc_stats id: %s\n", tid);
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_stat_init_dsrc_stats id: %s\n", tid);
 	/* Clear, so can also be called for reinitialization. */
 	memset(stats, 0, sizeof(*stats));
 
@@ -249,17 +249,17 @@ __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 	__wt_stat_init_rlu_relaxed_counter(&(stats->session_compact.v));
 	__wt_stat_init_rlu_relaxed_counter(&(stats->session_cursor_open.v));
 	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_update_conflict.v));
-	printf("end of dsrc stat init\n");
+	// printf("end of dsrc stat init\n");
 
 }
 
 // yunduz temp comment
-// void
-// __wt_stat_refresh_dsrc_stats(void *stats_arg)
-// {
-// 	char tid[128];
-// 	__wt_thread_id(tid, sizeof(tid));
-// 	printf("--- __wt_stat_refresh_dsrc_stats: %s\n", tid);
+void
+__wt_stat_refresh_dsrc_stats(void *stats_arg)
+{
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_stat_refresh_dsrc_stats: %s\n", tid);
 // 	WT_DSRC_STATS *stats;
 
 // 	stats = (WT_DSRC_STATS *)stats_arg;
@@ -351,15 +351,15 @@ __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 // 	stats->rec_page_delete.v = 0;
 // 	stats->session_compact.v = 0;
 // 	stats->txn_update_conflict.v = 0;
-// }
+}
 
 //yunduz temp comment
-// void
-// __wt_stat_aggregate_dsrc_stats(const void *child, const void *parent)
-// {
-// 	char tid[128];
-// 	__wt_thread_id(tid, sizeof(tid));
-// 	printf("--- __wt_stat_aggregate_dsrc_stats tid: %s\n", tid);
+void
+__wt_stat_aggregate_dsrc_stats(const void *child, const void *parent)
+{
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_stat_aggregate_dsrc_stats tid: %s\n", tid);
 // 	WT_DSRC_STATS *c, *p;
 
 // 	c = (WT_DSRC_STATS *)child;
@@ -457,15 +457,15 @@ __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 // 	p->session_compact.v += c->session_compact.v;
 // 	p->session_cursor_open.v += c->session_cursor_open.v;
 // 	p->txn_update_conflict.v += c->txn_update_conflict.v;
-// }
+}
 
 void
 __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 {
 	// yunduz print
-	char tid[128];
-	__wt_thread_id(tid, sizeof(tid));
-	printf("--- __wt_stat_init_connection_stats tid: %s\n", tid);
+	// char tid[128];
+	// __wt_thread_id(tid, sizeof(tid));
+	// printf("--- __wt_stat_init_connection_stats tid: %s\n", tid);
 	/* Clear, so can also be called for reinitialization. */
 	memset(stats, 0, sizeof(*stats));
 
@@ -829,17 +829,17 @@ __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_rollback.v));
 	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_sync.v));
 	__wt_stat_init_rlu_relaxed_counter(&(stats->write_io.v));
-	printf("end of conn stats init\n");
+	// printf("end of conn stats init\n");
 
 }
 
 //yunduz temp comment
-// void
-// __wt_stat_refresh_connection_stats(void *stats_arg)
-// {
-// 	char tid[128];
-// 	__wt_thread_id(tid, sizeof(tid));
-// 	printf("--- __wt_stat_refresh_connection_stats tid: %s\n", tid);
+void
+__wt_stat_refresh_connection_stats(void *stats_arg)
+{
+	char tid[128];
+	__wt_thread_id(tid, sizeof(tid));
+	printf("--- __wt_stat_refresh_connection_stats tid: %s\n", tid);
 // 	WT_CONNECTION_STATS *stats;
 
 // 	stats = (WT_CONNECTION_STATS *)stats_arg;
@@ -956,4 +956,4 @@ __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 // 	stats->txn_sync.v = 0;
 // 	stats->txn_commit.v = 0;
 // 	stats->txn_rollback.v = 0;
-// }
+}
