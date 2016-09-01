@@ -205,7 +205,7 @@ void
 __wt_async_stats_update(WT_SESSION_IMPL *session)
 {
 	//yunduz print
-	printf("--- __wt_async_stats_update\n");
+	// printf("--- __wt_async_stats_update\n");
 	WT_ASYNC *async;
 	WT_CONNECTION_IMPL *conn;
 	WT_CONNECTION_STATS *stats;

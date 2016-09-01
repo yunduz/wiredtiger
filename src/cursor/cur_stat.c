@@ -345,7 +345,8 @@ err:	API_END_RET(session, ret);
 static void
 __curstat_conn_init(WT_SESSION_IMPL *session, WT_CURSOR_STAT *cst)
 {
-	printf("--- __curstat_conn_init\n");
+	// yunduz print
+	// printf("--- __curstat_conn_init\n");
 	WT_CONNECTION_IMPL *conn;
 
 	conn = S2C(session);

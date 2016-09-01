@@ -74,7 +74,10 @@ __statlog_config(WT_SESSION_IMPL *session, const char **cfg, int *runp)
 	WT_RET(__wt_config_gets(session, cfg, "statistics_log.wait", &cval));
 	/* Only start the server if wait time is non-zero */
 	*runp = (cval.val == 0) ? 0 : 1;
-	conn->stat_usecs = (uint64_t)cval.val * 1000000;
+	// conn->stat_usecs = (uint64_t)cval.val * 1000000;
+	// yunduz
+	// consider wait time to be supplied in microseconds
+	conn->stat_usecs = (uint64_t)cval.val;
 
 	WT_RET(__wt_config_gets(
 	    session, cfg, "statistics_log.on_close", &cval));
@@ -138,7 +141,8 @@ err:	__stat_sources_free(session, &sources);
 static int
 __statlog_dump(WT_SESSION_IMPL *session, const char *name, int conn_stats)
 {
-	printf("--- statlog_dump\n");
+	// yunduz print
+	// printf("--- statlog_dump\n");
 	WT_CONNECTION_IMPL *conn;
 	WT_CURSOR *cursor;
 	WT_DECL_ITEM(tmp);
@@ -175,10 +179,18 @@ __statlog_dump(WT_SESSION_IMPL *session, const char *name, int conn_stats)
 		    sizeof(WT_DSRC_STATS) / sizeof(WT_STATS);
 		for (i = 0,
 		    stats = WT_CURSOR_STATS(cursor); i <  max; ++i, ++stats)
-			WT_ERR(__wt_fprintf(conn->stat_fp,
-			    "%s %" PRIu64 " %s %s\n",
-			    conn->stat_stamp,
-			    /*stats->v*/WT_STAT_FROM_STRUCT(stats->v), name, stats->desc));
+		{
+		    // yunduz temp comment out
+		    // yunduz rlu
+		    // don't write to a file to remove latency from i/o
+			// WT_ERR(__wt_fprintf(conn->stat_fp,
+			//     "%s %" PRIu64 " %s %s\n",
+			//     conn->stat_stamp,
+			//     /*stats->v*/WT_STAT_FROM_STRUCT(stats->v), name, stats->desc));
+			uint64_t temp_counter_val = WT_STAT_FROM_STRUCT(stats->v);
+			// now do smth with a counter so it's not optimized by compiler
+			temp_counter_val += 1;
+		}
 		WT_ERR(cursor->close(cursor));
 		break;
 	case EBUSY:
@@ -458,7 +470,8 @@ __statlog_start(WT_CONNECTION_IMPL *conn)
 	 * have more than one thread, I just didn't feel like writing the code
 	 * to figure out the scheduling.
 	 */
-	printf("--- __statlog_start\n");
+	// yunduz print
+	// printf("--- __statlog_start\n");
 	WT_RET(__wt_thread_create(
 	    session, &conn->stat_tid, __statlog_server, session));
 	conn->stat_tid_set = 1;

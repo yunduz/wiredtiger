@@ -81,13 +81,14 @@ static const WT_CONFIG_CHECK
 	{ NULL, NULL, NULL, NULL, NULL, 0 }
 };
 
+// yunduz
 static const WT_CONFIG_CHECK
     confchk_wiredtiger_open_statistics_log_subconfigs[] = {
 	{ "on_close", "boolean", NULL, NULL, NULL, 0 },
 	{ "path", "string", NULL, NULL, NULL, 0 },
 	{ "sources", "list", NULL, NULL, NULL, 0 },
 	{ "timestamp", "string", NULL, NULL, NULL, 0 },
-	{ "wait", "int", NULL, "min=0,max=100000", NULL, 0 },
+	{ "wait", "int", NULL, "min=0,max=1000000000", NULL, 0 },
 	{ NULL, NULL, NULL, NULL, NULL, 0 }
 };
 
