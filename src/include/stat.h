@@ -10,6 +10,7 @@
 #include "rlu.h"
 
 void test_rlu_strict_conn_cursor_next_incr(WT_SESSION_IMPL *session);
+int test_strict_rlu_conn_cursor_next_stat(WT_SESSION_IMPL *session);
 
 struct __wt_stats {
 	const char	*desc;				/* text description */
@@ -92,7 +93,7 @@ typedef struct rlu_test {
 	test_rlu_strict_conn_cursor_next_incr(session);	\
 } while(0)
 
-#define TEST_STRICT_RLU_CONN_CURSOR_NEXT_STAT(session) (*((&S2C(session)->stats)->rlu_strict_counter))
+#define TEST_STRICT_RLU_CONN_CURSOR_NEXT_STAT(session) (test_strict_rlu_conn_cursor_next_stat(session))
 /*
  * Read/write statistics if "fast" statistics are configured.
  */

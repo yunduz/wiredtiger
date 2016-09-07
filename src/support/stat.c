@@ -35,6 +35,21 @@ restart:
     RLU_READER_UNLOCK(self);
 }
 
+int test_strict_rlu_conn_cursor_next_stat(WT_SESSION_IMPL *session)
+{
+	rlu_thread_data_t *self = &(session->rlu_td);
+
+    RLU_READER_LOCK(self);
+
+    int *p_counter = (int *)RLU_DEREF(self, (&S2C(session)->stats)->rlu_strict_counter);
+
+    int counter = *p_counter;
+
+    RLU_READER_UNLOCK(self);
+
+    return counter;
+}
+
 //yunduz rlu
 void __wt_stat_init_rlu_relaxed_counter(rlu_relaxed_obj_t **counter)
 {
