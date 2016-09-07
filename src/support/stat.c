@@ -5,6 +5,36 @@
 //yunduz rlu
 #include "rlu.h"
 
+int *rlu_strict_new_counter(int **counter) {
+    
+    *counter = (int *)RLU_ALLOC(sizeof(int));
+    if (*counter == NULL){
+        printf("out of memory\n");
+        exit(1); 
+    }    
+    
+    **counter = 0;
+}
+
+void test_rlu_strict_conn_cursor_next_incr(WT_SESSION_IMPL *session)
+{
+	rlu_thread_data_t *self = &(session->rlu_td);
+restart:
+    RLU_READER_LOCK(self);
+
+    int *p_counter = (int *)RLU_DEREF(self, (&S2C(session)->stats)->rlu_strict_counter);
+
+    if(!RLU_TRY_LOCK(self, &p_counter))
+    {
+        RLU_ABORT(self);
+        goto restart;
+    }
+
+    (*p_counter)++;
+
+    RLU_READER_UNLOCK(self);
+}
+
 //yunduz rlu
 void __wt_stat_init_rlu_relaxed_counter(rlu_relaxed_obj_t **counter)
 {
@@ -830,6 +860,8 @@ __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_sync.v));
 	__wt_stat_init_rlu_relaxed_counter(&(stats->write_io.v));
 	// printf("end of conn stats init\n");
+
+	rlu_strict_new_counter(&(stats->rlu_strict_counter));
 
 }
 

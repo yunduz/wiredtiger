@@ -9,6 +9,8 @@
 //yunduz rlu
 #include "rlu.h"
 
+void test_rlu_strict_conn_cursor_next_incr(WT_SESSION_IMPL *session);
+
 struct __wt_stats {
 	const char	*desc;				/* text description */
 	// uint64_t	 v;				/* 64-bit value */
@@ -86,7 +88,11 @@ typedef struct rlu_test {
 	(*local_counter)++;	\
 } while (0)
 
+#define TEST_RLU_STRICT_CONN_CURSOR_NEXT_INCR(session) do {	\
+	test_rlu_strict_conn_cursor_next_incr(session);	\
+} while(0)
 
+#define TEST_STRICT_RLU_CONN_CURSOR_NEXT_STAT(session) (*((&S2C(session)->stats)->rlu_strict_counter))
 /*
  * Read/write statistics if "fast" statistics are configured.
  */
@@ -333,6 +339,7 @@ struct __wt_connection_stats {
 	// rlu_relaxed_obj_t *p_rlu_cursor_next;
 	// rlu_test_t p_rlu_cursor_next;
 	// int test_val;
+	int *rlu_strict_counter;
 };
 
 /*
