@@ -186,8 +186,8 @@ __statlog_dump(WT_SESSION_IMPL *session, const char *name, int conn_stats)
 			// WT_ERR(__wt_fprintf(conn->stat_fp,
 			//     "%s %" PRIu64 " %s %s\n",
 			//     conn->stat_stamp,
-			//     /*stats->v*/WT_STAT_FROM_STRUCT(stats->v), name, stats->desc));
-			uint64_t temp_counter_val = WT_STAT_FROM_STRUCT(stats->v);
+			//     /*stats->v*/WT_STAT_FROM_STRUCT(session, stats->v), name, stats->desc));
+			uint64_t temp_counter_val = WT_STAT_FROM_STRUCT(session, stats->v);
 			// now do smth with a counter so it's not optimized by compiler
 			temp_counter_val += 1;
 		}

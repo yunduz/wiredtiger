@@ -5,9 +5,9 @@
 //yunduz rlu
 #include "rlu.h"
 
-int *rlu_strict_new_counter(int **counter) {
+void *rlu_strict_new_counter(uint64_t **counter) {
     
-    *counter = (int *)RLU_ALLOC(sizeof(int));
+    *counter = (uint64_t *)RLU_ALLOC(sizeof(uint64_t));
     if (*counter == NULL){
         printf("out of memory\n");
         exit(1); 
@@ -16,13 +16,65 @@ int *rlu_strict_new_counter(int **counter) {
     **counter = 0;
 }
 
-void test_rlu_strict_conn_cursor_next_incr(WT_SESSION_IMPL *session)
+// void test_rlu_strict_conn_cursor_next_incr(WT_SESSION_IMPL *session)
+// {
+
+// 	rlu_thread_data_t *self = &(session->rlu_td);
+// restart:
+//     RLU_READER_LOCK(self);
+
+//     uint64_t *p_counter = (uint64_t *)RLU_DEREF(self, (&S2C(session)->stats)->rlu_strict_counter);
+
+//     // printf("test_rlu_strict_conn_cursor_next_incr: %" PRIu64 "\n", *p_counter);
+
+//     if(!RLU_TRY_LOCK(self, &p_counter))
+//     {
+//         RLU_ABORT(self);
+//         goto restart;
+//     }
+
+//     (*p_counter)++;
+
+//     RLU_READER_UNLOCK(self);
+// }
+
+// uint64_t test_strict_rlu_conn_cursor_next_stat(WT_SESSION_IMPL *session)
+// {
+// 	rlu_thread_data_t *self = &(session->rlu_td);
+
+//     RLU_READER_LOCK(self);
+
+//     uint64_t *p_counter = (uint64_t *)RLU_DEREF(self, (&S2C(session)->stats)->rlu_strict_counter);
+
+//     uint64_t counter = *p_counter;
+
+//     RLU_READER_UNLOCK(self);
+
+//     return counter;
+// }
+
+uint64_t rlu_strict_get_counter_val(WT_SESSION_IMPL *session, uint64_t *rlu_strict_counter)
+{
+	rlu_thread_data_t *self = &(session->rlu_td);
+
+    RLU_READER_LOCK(self);
+
+    uint64_t *p_counter = (uint64_t *)RLU_DEREF(self, rlu_strict_counter);
+
+    uint64_t counter = *p_counter;
+
+    RLU_READER_UNLOCK(self);
+
+    return counter;
+}
+
+void rlu_strict_inc_counter(WT_SESSION_IMPL *session, uint64_t *rlu_strict_counter, uint64_t val)
 {
 	rlu_thread_data_t *self = &(session->rlu_td);
 restart:
     RLU_READER_LOCK(self);
 
-    int *p_counter = (int *)RLU_DEREF(self, (&S2C(session)->stats)->rlu_strict_counter);
+    uint64_t *p_counter = (uint64_t *)RLU_DEREF(self, rlu_strict_counter);
 
     if(!RLU_TRY_LOCK(self, &p_counter))
     {
@@ -30,24 +82,47 @@ restart:
         goto restart;
     }
 
-    (*p_counter)++;
+    (*p_counter) += val;
 
     RLU_READER_UNLOCK(self);
 }
 
-int test_strict_rlu_conn_cursor_next_stat(WT_SESSION_IMPL *session)
+void rlu_strict_decr_counter(WT_SESSION_IMPL *session, uint64_t *rlu_strict_counter, uint64_t val)
 {
 	rlu_thread_data_t *self = &(session->rlu_td);
-
+restart:
     RLU_READER_LOCK(self);
 
-    int *p_counter = (int *)RLU_DEREF(self, (&S2C(session)->stats)->rlu_strict_counter);
+    uint64_t *p_counter = (uint64_t *)RLU_DEREF(self, rlu_strict_counter);
 
-    int counter = *p_counter;
+    if(!RLU_TRY_LOCK(self, &p_counter))
+    {
+        RLU_ABORT(self);
+        goto restart;
+    }
+
+    (*p_counter) += val;
 
     RLU_READER_UNLOCK(self);
+}
 
-    return counter;
+void rlu_strict_set_counter(WT_SESSION_IMPL *session, uint64_t *rlu_strict_counter, uint64_t val)
+{
+	rlu_thread_data_t *self = &(session->rlu_td);
+restart:
+    RLU_READER_LOCK(self);
+
+    uint64_t *p_counter = (uint64_t *)RLU_DEREF(self, rlu_strict_counter);
+
+    if(!RLU_TRY_LOCK(self, &p_counter))
+    {
+        RLU_ABORT(self);
+        goto restart;
+    }
+
+    (*p_counter) = val;
+
+    RLU_READER_UNLOCK(self);
 }
 
 //yunduz rlu
@@ -60,6 +135,12 @@ void __wt_stat_init_rlu_relaxed_counter(rlu_relaxed_obj_t **counter)
         printf("yunduz:  OUT OF MEMORY\n");
         exit(1);
     }
+}
+
+//yunduz rlu strict
+void __wt_stat_init_rlu_strict_counter(uint64_t **counter)
+{
+	rlu_strict_new_counter(counter);
 }
 
 void
@@ -204,96 +285,96 @@ __wt_stat_init_dsrc_stats(WT_DSRC_STATS *stats)
 
 	//yunduz rlu
 	// __wt_stat_init_rlu_relaxed_counter(&(stats->p_rlu_cursor_next.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->allocation_size.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_alloc.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_checkpoint_size.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_extension.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_free.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_magic.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_major.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_minor.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_reuse_bytes.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_size.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->bloom_count.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->bloom_false_positive.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->bloom_hit.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->bloom_miss.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->bloom_page_evict.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->bloom_page_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->bloom_size.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_checkpoint_generation.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_column_deleted.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_column_fix.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_column_internal.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_column_variable.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_compact_rewrite.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_entries.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_fixed_len.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_maximum_depth.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_maxintlkey.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_maxintlpage.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_maxleafkey.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_maxleafpage.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_maxleafvalue.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_overflow.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_row_internal.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->btree_row_leaf.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_write.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_checkpoint.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_clean.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_deepen.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_dirty.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_fail.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_hazard.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_internal.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_split.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_inmem_split.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_overflow_value.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_read_overflow.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_write.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->compress_raw_fail.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->compress_raw_fail_temporary.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->compress_raw_ok.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->compress_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->compress_write.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->compress_write_fail.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->compress_write_too_small.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_create.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_insert.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_insert_bulk.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_insert_bytes.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_next.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_prev.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_remove.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_remove_bytes.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_reset.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_search.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_search_near.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_update.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_update_bytes.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_checkpoint_throttle.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_chunk_count.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_generation_max.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_lookup_no_bloom.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_merge_throttle.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_dictionary.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_multiblock_internal.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_multiblock_leaf.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_multiblock_max.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_overflow_key_internal.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_overflow_key_leaf.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_overflow_value.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_page_delete.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_page_match.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_pages.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_pages_eviction.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_prefix_compression.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_suffix_compression.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->session_compact.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->session_cursor_open.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_update_conflict.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->allocation_size.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_alloc.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_checkpoint_size.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_extension.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_free.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_magic.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_major.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_minor.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_reuse_bytes.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_size.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->bloom_count.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->bloom_false_positive.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->bloom_hit.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->bloom_miss.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->bloom_page_evict.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->bloom_page_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->bloom_size.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_checkpoint_generation.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_column_deleted.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_column_fix.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_column_internal.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_column_variable.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_compact_rewrite.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_entries.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_fixed_len.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_maximum_depth.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_maxintlkey.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_maxintlpage.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_maxleafkey.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_maxleafpage.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_maxleafvalue.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_overflow.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_row_internal.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->btree_row_leaf.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_write.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_checkpoint.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_clean.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_deepen.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_dirty.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_fail.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_hazard.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_internal.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_split.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_inmem_split.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_overflow_value.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_read_overflow.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_write.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->compress_raw_fail.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->compress_raw_fail_temporary.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->compress_raw_ok.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->compress_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->compress_write.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->compress_write_fail.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->compress_write_too_small.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_create.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_insert.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_insert_bulk.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_insert_bytes.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_next.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_prev.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_remove.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_remove_bytes.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_reset.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_search.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_search_near.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_update.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_update_bytes.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_checkpoint_throttle.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_chunk_count.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_generation_max.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_lookup_no_bloom.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_merge_throttle.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_dictionary.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_multiblock_internal.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_multiblock_leaf.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_multiblock_max.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_overflow_key_internal.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_overflow_key_leaf.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_overflow_value.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_page_delete.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_page_match.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_pages.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_pages_eviction.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_prefix_compression.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_suffix_compression.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->session_compact.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->session_cursor_open.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_update_conflict.v));
 	// printf("end of dsrc stat init\n");
 
 }
@@ -730,153 +811,153 @@ __wt_stat_init_connection_stats(WT_CONNECTION_STATS *stats)
 
 	//yunduz rlu
 	// __wt_stat_init_rlu_relaxed_counter(&(stats->p_rlu_cursor_next.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_alloc_race.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_alloc_view.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_cur_queue.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_flush.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_full.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_max_queue.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_nowork.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_op_alloc.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_op_compact.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_op_insert.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_op_remove.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_op_search.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->async_op_update.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_byte_map_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_byte_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_byte_write.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_map_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_preload.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->block_write.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_dirty.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_internal.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_inuse.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_leaf.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_max.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_overflow.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_bytes_write.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_app.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_checkpoint.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_clean.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_deepen.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_dirty.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_fail.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_force.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_force_delete.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_force_fail.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_hazard.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_internal.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_maximum_page_size.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_queue_empty.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_queue_not_empty.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_server_evicting.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_server_not_evicting.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_slow.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_split.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_walk.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_eviction_worker_evicting.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_inmem_split.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_overhead.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_pages_dirty.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_pages_inuse.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cache_write.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cond_wait.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_create.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_insert.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_next.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_prev.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_remove.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_reset.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_search.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_search_near.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->cursor_update.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->dh_conn_handle_count.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->dh_session_handles.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->dh_session_sweeps.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->dh_sweep_close.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->dh_sweep_ref.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->dh_sweep_remove.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->dh_sweep_tod.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->dh_sweeps.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->file_open.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_buffer_size.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_bytes_payload.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_bytes_written.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_close_yields.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_compress_len.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_compress_mem.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_compress_small.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_compress_write_fails.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_compress_writes.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_max_filesize.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_prealloc_files.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_prealloc_max.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_prealloc_used.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_release_write_lsn.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_scan_records.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_scan_rereads.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_scans.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_slot_closes.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_slot_coalesced.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_slot_consolidated.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_slot_joins.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_slot_races.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_slot_toobig.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_slot_toosmall.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_slot_transitions.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_sync.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_sync_dir.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_write_lsn.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->log_writes.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_checkpoint_throttle.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_merge_throttle.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_rows_merged.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_work_queue_app.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_work_queue_manager.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_work_queue_max.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_work_queue_switch.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_work_units_created.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_work_units_discarded.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->lsm_work_units_done.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->memory_allocation.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->memory_free.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->memory_grow.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->page_busy_blocked.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->page_forcible_evict_blocked.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->page_locked_blocked.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->page_read_blocked.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->page_sleep.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->read_io.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_pages.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_pages_eviction.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_split_stashed_bytes.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rec_split_stashed_objects.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rwlock_read.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->rwlock_write.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->session_cursor_open.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->session_open.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_begin.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_checkpoint.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_checkpoint_generation.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_checkpoint_running.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_checkpoint_time_max.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_checkpoint_time_min.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_checkpoint_time_recent.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_checkpoint_time_total.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_commit.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_fail_cache.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_pinned_checkpoint_range.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_pinned_range.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_rollback.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->txn_sync.v));
-	__wt_stat_init_rlu_relaxed_counter(&(stats->write_io.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_alloc_race.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_alloc_view.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_cur_queue.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_flush.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_full.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_max_queue.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_nowork.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_op_alloc.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_op_compact.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_op_insert.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_op_remove.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_op_search.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->async_op_update.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_byte_map_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_byte_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_byte_write.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_map_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_preload.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->block_write.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_dirty.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_internal.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_inuse.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_leaf.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_max.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_overflow.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_bytes_write.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_app.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_checkpoint.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_clean.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_deepen.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_dirty.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_fail.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_force.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_force_delete.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_force_fail.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_hazard.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_internal.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_maximum_page_size.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_queue_empty.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_queue_not_empty.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_server_evicting.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_server_not_evicting.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_slow.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_split.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_walk.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_eviction_worker_evicting.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_inmem_split.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_overhead.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_pages_dirty.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_pages_inuse.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cache_write.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cond_wait.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_create.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_insert.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_next.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_prev.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_remove.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_reset.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_search.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_search_near.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->cursor_update.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->dh_conn_handle_count.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->dh_session_handles.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->dh_session_sweeps.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->dh_sweep_close.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->dh_sweep_ref.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->dh_sweep_remove.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->dh_sweep_tod.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->dh_sweeps.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->file_open.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_buffer_size.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_bytes_payload.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_bytes_written.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_close_yields.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_compress_len.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_compress_mem.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_compress_small.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_compress_write_fails.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_compress_writes.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_max_filesize.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_prealloc_files.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_prealloc_max.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_prealloc_used.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_release_write_lsn.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_scan_records.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_scan_rereads.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_scans.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_slot_closes.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_slot_coalesced.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_slot_consolidated.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_slot_joins.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_slot_races.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_slot_toobig.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_slot_toosmall.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_slot_transitions.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_sync.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_sync_dir.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_write_lsn.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->log_writes.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_checkpoint_throttle.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_merge_throttle.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_rows_merged.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_work_queue_app.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_work_queue_manager.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_work_queue_max.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_work_queue_switch.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_work_units_created.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_work_units_discarded.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->lsm_work_units_done.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->memory_allocation.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->memory_free.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->memory_grow.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->page_busy_blocked.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->page_forcible_evict_blocked.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->page_locked_blocked.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->page_read_blocked.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->page_sleep.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->read_io.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_pages.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_pages_eviction.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_split_stashed_bytes.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rec_split_stashed_objects.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rwlock_read.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->rwlock_write.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->session_cursor_open.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->session_open.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_begin.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_checkpoint.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_checkpoint_generation.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_checkpoint_running.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_checkpoint_time_max.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_checkpoint_time_min.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_checkpoint_time_recent.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_checkpoint_time_total.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_commit.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_fail_cache.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_pinned_checkpoint_range.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_pinned_range.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_rollback.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->txn_sync.v));
+	__wt_stat_init_rlu_strict_counter(&(stats->write_io.v));
 	// printf("end of conn stats init\n");
 
-	rlu_strict_new_counter(&(stats->rlu_strict_counter));
+	// rlu_strict_new_counter(&(stats->rlu_strict_counter));
 
 }
 

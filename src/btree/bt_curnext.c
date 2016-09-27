@@ -454,7 +454,7 @@ __wt_btcur_next(WT_CURSOR_BTREE *cbt, int truncating)
 
 	WT_STAT_FAST_CONN_INCR(session, cursor_next);
 	WT_STAT_FAST_DATA_INCR(session, cursor_next);
-	TEST_RLU_STRICT_CONN_CURSOR_NEXT_INCR(session);
+	// TEST_RLU_STRICT_CONN_CURSOR_NEXT_INCR(session);
 	// TEST_FLD(session, test_val);
 	// printf("TEST_FLD = %d\n", S2C(session)->stats.test_val);
 
