@@ -87,7 +87,7 @@ static const WT_CONFIG_CHECK
 	{ "path", "string", NULL, NULL, NULL, 0 },
 	{ "sources", "list", NULL, NULL, NULL, 0 },
 	{ "timestamp", "string", NULL, NULL, NULL, 0 },
-	{ "wait", "int", NULL, "min=0,max=100000", NULL, 0 },
+	{ "wait", "int", NULL, "min=0,max=1000000000", NULL, 0 },
 	{ NULL, NULL, NULL, NULL, NULL, 0 }
 };
 

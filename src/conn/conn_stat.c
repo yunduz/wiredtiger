@@ -82,7 +82,10 @@ __statlog_config(WT_SESSION_IMPL *session, const char **cfg, int *runp)
 	WT_RET(__wt_config_gets(session, cfg, "statistics_log.wait", &cval));
 	/* Only start the server if wait time is non-zero */
 	*runp = (cval.val == 0) ? 0 : 1;
-	conn->stat_usecs = (uint64_t)cval.val * 1000000;
+	// conn->stat_usecs = (uint64_t)cval.val * 1000000;
+	// yunduz
+	// consider wait time to be supplied in microseconds
+	conn->stat_usecs = (uint64_t)cval.val;
 
 	WT_RET(__wt_config_gets(
 	    session, cfg, "statistics_log.on_close", &cval));
@@ -178,12 +181,19 @@ __statlog_dump(WT_SESSION_IMPL *session, const char *name, int conn_stats)
 	case 0:
 		cst = (WT_CURSOR_STAT *)cursor;
 		for (stats = cst->stats, i = 0; i <  cst->stats_count; ++i)
-			WT_ERR(__wt_fprintf(conn->stat_fp,
-			    "%s %" PRId64 " %s %s\n",
-			    conn->stat_stamp, stats[i],
-			    name, conn_stats ?
-			    __wt_stat_connection_desc(i) :
-			    __wt_stat_dsrc_desc(i)));
+		{
+			// yunduz temp comment out
+			// don't write to a file to remove latency from i/o
+			// WT_ERR(__wt_fprintf(conn->stat_fp,
+			//     "%s %" PRId64 " %s %s\n",
+			//     conn->stat_stamp, stats[i],
+			//     name, conn_stats ?
+			//     __wt_stat_connection_desc(i) :
+			//     __wt_stat_dsrc_desc(i)));
+			uint64_t temp_counter_val = stats[i];
+			// now do smth with a counter so it's not optimized by compiler
+			temp_counter_val += 1;
+		}
 		WT_ERR(cursor->close(cursor));
 		break;
 	case EBUSY:
